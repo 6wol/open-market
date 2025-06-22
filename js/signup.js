@@ -779,6 +779,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
+// 체크박스 관련 코드 (수정된 부분)
 const consentCheckEmpty = document.getElementById('consent-check-empty');
 const consentCheckFill = document.getElementById('consent-check-fill');
 const consentCheckbox = document.getElementById('information');
@@ -792,107 +793,123 @@ function toggleConsent() {
     const isChecked = consentCheckbox.checked;
     
     if (isChecked) {
-        consentCheckEmpty.classList.remove('show');
-        consentCheckFill.classList.add('show');
-        consentCheckbox.checked = false;
-    } else {
+        // 이미 체크되어 있으면 체크 해제
         consentCheckEmpty.classList.add('show');
         consentCheckFill.classList.remove('show');
+        consentCheckbox.checked = false;
+    } else {
+        // 체크되어 있지 않으면 체크
+        consentCheckEmpty.classList.remove('show');
+        consentCheckFill.classList.add('show');
         consentCheckbox.checked = true;
     }
     
-    checkFormValidity();
+    // 현재 활성화된 탭에 따라 해당 폼 유효성 검사 실행
+    if (document.querySelector('.tab-purchase.active')) {
+        checkFormValidity();
+    } else if (document.querySelector('.tab-sale.active')) {
+        checkSaleFormValidity();
+    }
 }
-
+// 체크박스 이미지에만 클릭 이벤트 추가
 consentCheckEmpty.addEventListener('click', toggleConsent);
 consentCheckFill.addEventListener('click', toggleConsent);
 
-// 라벨 클릭 시에도 체크박스 토글
+// 라벨 클릭 시 기본 동작 방지 (이용약관 링크는 동작하도록 함)
 document.querySelector('.consent label').addEventListener('click', function(e) {
-    e.preventDefault();
-    toggleConsent();
-});
-
-consentCheckbox.addEventListener('change', function() {
-    if (this.checked) {
-        consentCheckEmpty.classList.remove('show');
-        consentCheckFill.classList.add('show');
-    } else {
-        consentCheckEmpty.classList.add('show');
-        consentCheckFill.classList.remove('show');
+    // 링크를 클릭한 경우에는 기본 동작 허용
+    if (e.target.tagName === 'A') {
+        return;
     }
-    checkFormValidity();
+    // 라벨의 다른 부분을 클릭한 경우 기본 동작 방지
+    e.preventDefault();
 });
 
-    // 가입하기 버튼 - API 연동
-    const joinButton = document.getElementById('join-submit-btn');
-    joinButton.addEventListener('click', async function() {
-        if (!this.disabled) {
-            const currentTab = document.querySelector('.tab-content.active');
+// 숨겨진 체크박스의 change 이벤트는 제거하거나 주석 처리
+// consentCheckbox.addEventListener('change', function() {
+//     if (this.checked) {
+//         consentCheckEmpty.classList.remove('show');
+//         consentCheckFill.classList.add('show');
+//     } else {
+//         consentCheckEmpty.classList.add('show');
+//         consentCheckFill.classList.remove('show');
+//     }
+//     checkFormValidity();
+// });
+
+ // 가입하기 버튼 - API 연동 (수정된 부분)
+const joinButton = document.getElementById('join-submit-btn');
+joinButton.addEventListener('click', async function() {
+    if (!this.disabled) {
+        const currentTab = document.querySelector('.tab-content .active') || document.querySelector('.tab-purchase.active');
+        
+        if (document.querySelector('.tab-purchase.active')) {
+            // 구매자 회원가입
+            const userData = {
+                username: document.getElementById('signup-username-purchase').value,
+                password: document.getElementById('signup-pw-purchase').value,
+                name: document.querySelector('input[name="name"]').value,
+                phone_number: document.getElementById('phone-prefix').value + document.getElementById('phone-middle').value + document.getElementById('phone-last').value
+            };
             
-            if (currentTab && currentTab.id === 'signup-purchase') {
-                // 구매자 회원가입
-                const userData = {
-                    username: document.getElementById('signup-username-purchase').value,
-                    password: document.getElementById('signup-pw-purchase').value,
-                    name: document.querySelector('input[name="name"]').value,
-                    phone_number: document.getElementById('phone-prefix').value + document.getElementById('phone-middle').value + document.getElementById('phone-last').value
-                };
-                
-                try {
-                    const res = await fetch('https://api.wenivops.co.kr/services/open-market/accounts/buyer/signup/', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(userData),
-                    });
+            try {
+                const res = await fetch('https://api.wenivops.co.kr/services/open-market/accounts/buyer/signup/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData),
+                });
 
-                    const data = await res.json();
+                const data = await res.json();
 
-                    if (res.ok) {
-                        alert('구매자 회원가입이 완료되었습니다!');
-                        console.log('회원가입 성공:', data);
-                    } else {
-                        console.error('회원가입 실패:', data);
-                        alert('회원가입에 실패했습니다. 다시 시도해주세요.');
-                    }
-                } catch (err) {
-                    console.error('회원가입 요청 실패:', err);
-                    alert('서버 요청 중 오류가 발생했습니다.');
+                if (res.ok) {
+                    alert('구매자 회원가입에 성공했습니다! :)');
+                    console.log('회원가입 성공:', data);
+                    // 로그인 페이지로 이동
+                    window.location.href = 'https://6wol.github.io/open-market/login.html';
+                } else {
+                    console.error('회원가입 실패:', data);
+                    alert('회원가입에 실패했습니다. 다시 시도해주세요.');
                 }
-            } else if (currentTab && currentTab.id === 'signup-sale') {
-                // 판매자 회원가입
-                const userData = {
-                    username: document.getElementById('signup-username-sale').value,
-                    password: document.getElementById('signup-pw-sale').value,
-                    name: document.getElementById('signup-name-sale').value,
-                    phone_number: document.getElementById('phone-prefix-sale').value + document.getElementById('phone-middle-sale').value + document.getElementById('phone-last-sale').value,
-                    company_registration_number: document.getElementById('signup-business-number').value,
-                    store_name: document.getElementById('signup-store-name').value
-                };
-                
-                try {
-                    const res = await fetch('https://api.wenivops.co.kr/services/open-market/accounts/seller/signup/', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(userData),
-                    });
+            } catch (err) {
+                console.error('회원가입 요청 실패:', err);
+                alert('서버 요청 중 오류가 발생했습니다.');
+            }
+        } else if (document.querySelector('.tab-sale.active')) {
+            // 판매자 회원가입
+            const userData = {
+                username: document.getElementById('signup-username-sale').value,
+                password: document.getElementById('signup-pw-sale').value,
+                name: document.getElementById('signup-name-sale').value,
+                phone_number: document.getElementById('phone-prefix-sale').value + document.getElementById('phone-middle-sale').value + document.getElementById('phone-last-sale').value,
+                company_registration_number: document.getElementById('signup-business-number').value,
+                store_name: document.getElementById('signup-store-name').value
+            };
+            
+            try {
+                const res = await fetch('https://api.wenivops.co.kr/services/open-market/accounts/seller/signup/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData),
+                });
 
-                    const data = await res.json();
+                const data = await res.json();
 
-                    if (res.ok) {
-                        alert('판매자 회원가입이 완료되었습니다!');
-                        console.log('회원가입 성공:', data);
-                    } else {
-                        console.error('회원가입 실패:', data);
-                        alert('회원가입에 실패했습니다. 다시 시도해주세요.');
-                    }
-                } catch (err) {
-                    console.error('회원가입 요청 실패:', err);
-                    alert('서버 요청 중 오류가 발생했습니다.');
+                if (res.ok) {
+                    alert('판매자 회원가입에 성공했습니다! :)');
+                    console.log('회원가입 성공:', data);
+                    // 로그인 페이지로 이동
+                    window.location.href = 'https://6wol.github.io/open-market/login.html';
+                } else {
+                    console.error('회원가입 실패:', data);
+                    alert('회원가입에 실패했습니다. 다시 시도해주세요.');
                 }
+            } catch (err) {
+                console.error('회원가입 요청 실패:', err);
+                alert('서버 요청 중 오류가 발생했습니다.');
             }
         }
-    });
+    }
+});
     
     // 초기 상태 설정
     checkFormValidity();

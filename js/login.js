@@ -1,322 +1,904 @@
-// API 기본 URL 설정
+// API 기본 URL
 const API_BASE_URL = 'https://api.wenivops.co.kr/services/open-market';
 
-// 탭 전환 기능
-document.addEventListener('DOMContentLoaded', function() {
-    const tabButtons = document.querySelectorAll('.tab-button button');
-    const tabContents = document.querySelectorAll('.tab-content > div');
-
-    // 탭 버튼 클릭 이벤트
-    tabButtons.forEach((button, index) => {
-        button.addEventListener('click', function() {
-            // 모든 탭 버튼과 컨텐츠에서 active 클래스 제거
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
-
-            // 클릭된 탭 버튼과 해당 컨텐츠에 active 클래스 추가
-            this.classList.add('active');
-            tabContents[index].classList.add('active');
-
-            // 에러 메시지 초기화
-            clearErrorMessages();
-        });
-    });
-
-    // 초기 상태: 첫 번째 탭 활성화
-    if (tabButtons.length > 0 && tabContents.length > 0) {
-        tabButtons[0].classList.add('active');
-        tabContents[0].classList.add('active');
-    }
-
-    // 로그인 폼 제출 이벤트 처리
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        form.addEventListener('submit', handleLogin);
-    });
-
-    // 입력 필드 포커스 시 에러 메시지 제거
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            const form = this.closest('form');
-            let errorMessageDiv = form.querySelector('.error-message');
-            if (!errorMessageDiv) {
-                errorMessageDiv = createErrorMessageDiv(form);
-            }
-            // 에러 텍스트는 즉시 제거
-            errorMessageDiv.textContent = '';
-            // 마진 클래스는 딜레이 후 제거
-            setTimeout(() => {
-                errorMessageDiv.classList.remove('show');
-            }, 300);
-        });
-    });
-
-    // 페이지 로드 시 토큰 확인 및 자동 갱신 설정
-    checkAndRefreshToken();
-    setTokenRefreshInterval();
-});
-
-// 로그인 처리 함수
-async function handleLogin(event) {
-    event.preventDefault(); // 폼 기본 제출 방지
-
-    const form = event.target;
-    const idInput = form.querySelector('input[name="username"]');
-    const passwordInput = form.querySelector('input[name="pw"]');
-    const submitBtn = form.querySelector('.submit-btn');
+// 탭 전환
+function switchTab(type) {
+    const purchaseTab = document.getElementById('signup-purchase');
+    const saleTab = document.getElementById('signup-sale');
+    const purchaseBtn = document.querySelector('.tab-button-login1');
+    const saleBtn = document.querySelector('.tab-button-login2');
     
-    // 에러 메시지 div 찾기 또는 생성
-    let errorMessageDiv = form.querySelector('.error-message');
-    if (!errorMessageDiv) {
-        errorMessageDiv = document.createElement('div');
-        errorMessageDiv.className = 'error-message';
-        form.insertBefore(errorMessageDiv, submitBtn);
+    if (type === 'purchase') {
+        purchaseTab.classList.add('active');
+        saleTab.classList.remove('active');
+        purchaseBtn.classList.add('active');
+        saleBtn.classList.remove('active');
+    } else {
+        purchaseTab.classList.remove('active');
+        saleTab.classList.add('active');
+        purchaseBtn.classList.remove('active');
+        saleBtn.classList.add('active');
     }
+}
 
-    const username = idInput.value.trim();
-    const password = passwordInput.value.trim();
+// 유효성 검사
+const validators = {
+    validateUsername: function(username) {
+        const regex = /^[a-zA-Z0-9]{1,20}$/;
+        if (!username) {
+            return { isValid: false, message: '이 필드는 필수 항목입니다.' };
+        }
+        if (!regex.test(username)) {
+            return { isValid: false, message: 'ID는 20자 이내의 영어 소문자, 대문자, 숫자만 가능합니다.' };
+        }
+        return { isValid: true, message: '' };
+    },
+    
+    validatePassword: function(password) {
+        if (!password) {
+            return { isValid: false, message: '이 필드는 필수 항목입니다.' };
+        }
+        if (password.length < 8) {
+            return { isValid: false, message: '비밀번호는 8자 이상이어야 합니다.' };
+        }
+        if (!/[a-z]/.test(password)) {
+            return { isValid: false, message: '비밀번호는 한개 이상의 영소문자가 필수적으로 들어가야 합니다.' };
+        }
+        if (!/\d/.test(password)) {
+            return { isValid: false, message: '비밀번호는 한개 이상의 숫자가 필수적으로 들어가야 합니다.' };
+        }
+        return { isValid: true, message: '' };
+    },
+    
+    // 비밀번호 재확인
+    validatePasswordConfirm: function(password, confirmPassword) {
+        if (!confirmPassword) {
+            return { isValid: false, message: '이 필드는 필수 항목입니다.' };
+        }
+        if (password !== confirmPassword) {
+            return { isValid: false, message: '비밀번호가 일치하지 않습니다.' };
+        }
+        return { isValid: true, message: '' };
+    },
+    
+    // 이름 유효성 검사
+    validateName: function(name) {
+        if (!name) {
+            return { isValid: false, message: '이 필드는 필수 항목입니다.' };
+        }
+        return { isValid: true, message: '' };
+    },
+    
+    // 휴대폰 번호 유효성 검사
+    validatePhone: function(fullPhone) {
+        const phoneRegex = /^01\d{8,9}$/;
+        
+        if (!fullPhone) {
+            return { isValid: false, message: '이 필드는 필수 항목입니다.' };
+        }
+        if (!phoneRegex.test(fullPhone)) {
+            return { isValid: false, message: '핸드폰번호는 01*으로 시작해야 하는 10~11자리 숫자여야 합니다.' };
+        }
+        return { isValid: true, message: '' };
+    },
 
-    // 에러 메시지 초기화
-    errorMessageDiv.textContent = '';
-    errorMessageDiv.classList.remove('show');
+    validateBusinessNumber: function(businessNumber) {
+        const cleanNumber = businessNumber.replace(/-/g, '');
+        if (!businessNumber) {
+            return { isValid: false, message: '이 필드는 필수 항목입니다.' };
+        }
+        if (!/^\d{10}$/.test(cleanNumber)) {
+            return { isValid: false, message: '사업자등록번호는 10자리 숫자여야 합니다.' };
+        }
+        return { isValid: true, message: '' };
+    },
 
-    // 유효성 검사
-    if (!username && !password) {
-        showErrorMessage(errorMessageDiv, '아이디를 입력해 주세요.');
-        return;
+    validateStoreName: function(storeName) {
+        if (!storeName) {
+            return { isValid: false, message: '이 필드는 필수 항목입니다.' };
+        }
+        return { isValid: true, message: '' };
     }
+};
 
-    if (!username && password) {
-        showErrorMessage(errorMessageDiv, '아이디를 입력해 주세요.');
-        return;
+// 에러 메시지 표시 함수
+function showError(elementId, message, isSuccess = false) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.add('visible');
+        if (isSuccess) {
+            errorElement.classList.add('success');
+        } else {
+            errorElement.classList.remove('success');
+        }
     }
+}
 
-    if (username && !password) {
-        showErrorMessage(errorMessageDiv, '비밀번호를 입력해 주세요.');
-        return;
+// 에러 메시지 숨기기 함수
+function hideError(elementId) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.textContent = '';
+        errorElement.classList.remove('visible', 'success');
     }
+}
 
-    // 로그인 버튼 비활성화 (중복 클릭 방지)
-    submitBtn.disabled = true;
-    submitBtn.textContent = '로그인 중...';
+// 입력 필드 스타일 업데이트
+function updateInputStyle(inputElement, isValid) {
+    inputElement.classList.remove('valid', 'invalid');
+    if (isValid) {
+        inputElement.classList.add('valid');
+    } else {
+        inputElement.classList.add('invalid');
+    }
+}
 
+// 비밀번호 확인 아이콘 업데이트
+function updatePasswordIcon(container, isValid) {
+    const checkOffIcon = container.querySelector('img[src*="check-off"]');
+    const checkOnIcon = container.querySelector('img[src*="check-on"]');
+    
+    if (checkOffIcon && checkOnIcon) {
+        checkOffIcon.classList.remove('show');
+        checkOnIcon.classList.remove('show');
+        
+        if (isValid) {
+            checkOnIcon.classList.add('show');
+        } else {
+            checkOffIcon.classList.add('show');
+        }
+    }
+}
+
+// 순차 입력 검사 함수
+function checkSequentialInput(currentField) {
+    const fields = ['username', 'password', 'passwordConfirm', 'name', 'phone'];
+    const currentIndex = fields.indexOf(currentField);
+    
+    // 이전 필드들이 모두 채워졌는지 확인
+    for (let i = 0; i < currentIndex; i++) {
+        const field = fields[i];
+        let isEmpty = false;
+        
+        switch (field) {
+            case 'username':
+                isEmpty = !document.getElementById('signup-username-purchase').value;
+                if (isEmpty) showError('signup-id-purchase', '이 필드는 필수 항목입니다.');
+                break;
+            case 'password':
+                isEmpty = !document.getElementById('signup-pw-purchase').value;
+                if (isEmpty) showError('signup-pw-error-purchase', '이 필드는 필수 항목입니다.');
+                break;
+            case 'passwordConfirm':
+                isEmpty = !document.getElementById('signup-pw-reconfirm-purchase').value;
+                if (isEmpty) showError('signup-pw-reconfirm-purchase', '이 필드는 필수 항목입니다.');
+                break;
+            case 'name':
+                isEmpty = !document.querySelector('input[name="name"]').value;
+                if (isEmpty) showError('signup-name-error-purchase', '이 필드는 필수 항목입니다.');
+                break;
+        }
+    }
+}
+
+// 폼 유효성 검사 상태 체크 (구매자용)
+function checkFormValidity() {
+    const username = document.getElementById('signup-username-purchase').value;
+    const password = document.getElementById('signup-pw-purchase').value;
+    const confirmPassword = document.getElementById('signup-pw-reconfirm-purchase').value;
+    const name = document.querySelector('input[name="name"]').value;
+    const phonePrefix = document.getElementById('phone-prefix').value;
+    const phoneMiddle = document.getElementById('phone-middle').value;
+    const phoneLast = document.getElementById('phone-last').value;
+    const consent = document.getElementById('information').checked;
+    
+    const fullPhone = phonePrefix + phoneMiddle + phoneLast;
+    
+    const isUsernameValid = validators.validateUsername(username).isValid;
+    const isPasswordValid = validators.validatePassword(password).isValid;
+    const isPasswordConfirmValid = validators.validatePasswordConfirm(password, confirmPassword).isValid;
+    const isNameValid = validators.validateName(name).isValid;
+    const isPhoneValid = validators.validatePhone(fullPhone).isValid;
+    
+    // 아이디 중복확인 여부 체크
+    const isUsernameDuplicateChecked = document.getElementById('signup-username-purchase').dataset.duplicateChecked === 'true';
+    
+    const submitBtn = document.getElementById('join-submit-btn');
+    if (isUsernameValid && isUsernameDuplicateChecked && isPasswordValid && isPasswordConfirmValid && isNameValid && isPhoneValid && consent) {
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.disabled = true;
+    }
+}
+
+// 판매자용 폼 유효성 검사
+function checkSaleFormValidity() {
+    const username = document.getElementById('signup-username-sale').value;
+    const password = document.getElementById('signup-pw-sale').value;
+    const confirmPassword = document.getElementById('signup-pw-reconfirm-sale').value;
+    const name = document.getElementById('signup-name-sale').value;
+    const phonePrefix = document.getElementById('phone-prefix-sale').value;
+    const phoneMiddle = document.getElementById('phone-middle-sale').value;
+    const phoneLast = document.getElementById('phone-last-sale').value;
+    const businessNumber = document.getElementById('signup-business-number').value;
+    const storeName = document.getElementById('signup-store-name').value;
+    const consent = document.getElementById('information').checked;
+    
+    const fullPhone = phonePrefix + phoneMiddle + phoneLast;
+    
+    const isUsernameValid = validators.validateUsername(username).isValid;
+    const isPasswordValid = validators.validatePassword(password).isValid;
+    const isPasswordConfirmValid = validators.validatePasswordConfirm(password, confirmPassword).isValid;
+    const isNameValid = validators.validateName(name).isValid;
+    const isPhoneValid = validators.validatePhone(fullPhone).isValid;
+    const isBusinessNumberValid = validators.validateBusinessNumber(businessNumber).isValid;
+    const isStoreNameValid = validators.validateStoreName(storeName).isValid;
+    
+    // 중복확인 여부 체크
+    const isUsernameDuplicateChecked = document.getElementById('signup-username-sale').dataset.duplicateChecked === 'true';
+    const isBusinessNumberVerified = document.getElementById('signup-business-number').dataset.businessChecked === 'true';
+    
+    const submitBtn = document.getElementById('join-submit-btn');
+    if (isUsernameValid && isUsernameDuplicateChecked && isPasswordValid && isPasswordConfirmValid && 
+        isNameValid && isPhoneValid && isBusinessNumberValid && isBusinessNumberVerified && 
+        isStoreNameValid && consent) {
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.disabled = true;
+    }
+}
+
+// API 호출
+async function validateUsername(username) {
     try {
-        // API 호출
-        const response = await fetch(`${API_BASE_URL}/accounts/login/`, {
+        const response = await fetch(`${API_BASE_URL}/accounts/validate-username/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
+            body: JSON.stringify({ username })
         });
 
         const data = await response.json();
-
+        
         if (response.ok) {
-            // 로그인 성공
-            handleLoginSuccess(data);
+            return { success: true, message: data.message };
         } else {
-            // 로그인 실패
-            const errorMessage = data.error || '아이디 또는 비밀번호가 올바르지 않습니다.';
-            showErrorMessage(errorMessageDiv, errorMessage);
+            return { success: false, message: data.error };
         }
     } catch (error) {
-        console.error('로그인 요청 중 오류:', error);
-        showErrorMessage(errorMessageDiv, '네트워크 오류가 발생했습니다. 다시 시도해주세요.');
-    } finally {
-        // 로그인 버튼 다시 활성화
-        submitBtn.disabled = false;
-        submitBtn.textContent = '로그인';
+        console.error('아이디 검증 API 오류:', error);
+        return { success: false, message: '서버 연결에 실패했습니다.' };
     }
 }
 
-// 로그인 성공 처리 함수
-function handleLoginSuccess(data) {
-    // 토큰과 사용자 정보 저장
-    localStorage.setItem('access_token', data.access);
-    localStorage.setItem('refresh_token', data.refresh);
-    localStorage.setItem('user_info', JSON.stringify(data.user));
-    
-    // 토큰 만료 시간 저장 (5분)
-    const tokenExpiry = new Date().getTime() + (5 * 60 * 1000);
-    localStorage.setItem('token_expiry', tokenExpiry.toString());
-
-    alert('로그인 성공!');
-    
-    // 실제로는 메인 페이지나 대시보드로 리다이렉트
-    // window.location.href = '/dashboard.html';
-    console.log('사용자 정보:', data.user);
-}
-
-// 토큰 갱신 함수
-async function refreshAccessToken() {
-    const refreshToken = localStorage.getItem('refresh_token');
-    
-    if (!refreshToken) {
-        console.log('Refresh token이 없습니다.');
-        return false;
-    }
-
+async function validateBusinessNumber(companyRegistrationNumber) {
     try {
-        const response = await fetch(`${API_BASE_URL}/accounts/token/refresh/`, {
+        const response = await fetch(`${API_BASE_URL}/accounts/seller/validate-registration-number/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                refresh: refreshToken
-            })
+            body: JSON.stringify({ company_registration_number: companyRegistrationNumber })
         });
 
+        const data = await response.json();
+        
         if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem('access_token', data.access);
-            
-            // 새 토큰 만료 시간 저장 (5분)
-            const tokenExpiry = new Date().getTime() + (5 * 60 * 1000);
-            localStorage.setItem('token_expiry', tokenExpiry.toString());
-            
-            console.log('토큰이 갱신되었습니다.');
-            return true;
+            return { success: true, message: data.message };
         } else {
-            console.log('토큰 갱신 실패, 다시 로그인이 필요합니다.');
-            clearAuthData();
-            return false;
+            return { success: false, message: data.error };
         }
     } catch (error) {
-        console.error('토큰 갱신 중 오류:', error);
-        return false;
+        console.error('사업자등록번호 검증 API 오류:', error);
+        return { success: false, message: '서버 연결에 실패했습니다.' };
     }
 }
 
-// 토큰 확인 및 갱신 함수
-async function checkAndRefreshToken() {
-    const accessToken = localStorage.getItem('access_token');
-    const tokenExpiry = localStorage.getItem('token_expiry');
-    
-    if (!accessToken || !tokenExpiry) {
-        return;
-    }
+async function signupBuyer(userData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/accounts/buyer/signup/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
 
-    const currentTime = new Date().getTime();
-    const expiryTime = parseInt(tokenExpiry);
-    
-    // 토큰이 1분 이내에 만료될 예정이면 갱신
-    if (currentTime >= (expiryTime - 60000)) {
-        await refreshAccessToken();
-    }
-}
-
-// 토큰 자동 갱신 간격 설정 (4분마다 체크)
-function setTokenRefreshInterval() {
-    setInterval(checkAndRefreshToken, 4 * 60 * 1000);
-}
-
-// 인증 데이터 클리어 함수
-function clearAuthData() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user_info');
-    localStorage.removeItem('token_expiry');
-}
-
-// 로그아웃 함수
-function logout() {
-    clearAuthData();
-    alert('로그아웃되었습니다.');
-    // 로그인 페이지로 리다이렉트
-    // window.location.href = '/login.html';
-}
-
-// 인증된 API 요청을 위한 헬퍼 함수
-async function authenticatedFetch(url, options = {}) {
-    const accessToken = localStorage.getItem('access_token');
-    
-    if (!accessToken) {
-        throw new Error('인증 토큰이 없습니다.');
-    }
-
-    // 토큰 확인 및 갱신
-    await checkAndRefreshToken();
-    
-    const updatedToken = localStorage.getItem('access_token');
-    
-    const defaultOptions = {
-        headers: {
-            'Authorization': `Bearer ${updatedToken}`,
-            'Content-Type': 'application/json',
-            ...options.headers
+        const data = await response.json();
+        
+        if (response.ok) {
+            return { success: true, data };
+        } else {
+            return { success: false, errors: data };
         }
-    };
-
-    return fetch(url, { ...options, ...defaultOptions });
+    } catch (error) {
+        console.error('구매자 회원가입 API 오류:', error);
+        return { success: false, message: '서버 연결에 실패했습니다.' };
+    }
 }
 
-// 에러 메시지 표시 함수
-function showErrorMessage(element, message) {
-    element.textContent = message;
-    element.classList.add('show');
-    element.style.color = '#EB5757';
+async function signupSeller(userData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/accounts/seller/signup/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            return { success: true, data };
+        } else {
+            return { success: false, errors: data };
+        }
+    } catch (error) {
+        console.error('판매자 회원가입 API 오류:', error);
+        return { success: false, message: '서버 연결에 실패했습니다.' };
+    }
 }
 
-// 모든 에러 메시지 초기화 함수
-function clearErrorMessages() {
-    const errorMessages = document.querySelectorAll('.error-message');
-    errorMessages.forEach(element => {
-        element.textContent = '';
-        element.classList.remove('show');
+
+function formatBusinessNumber(value) {
+    const numbers = value.replace(/[^\d]/g, '');
+    if (numbers.length <= 3) {
+        return numbers;
+    } else if (numbers.length <= 5) {
+        return numbers.replace(/(\d{3})/, '$1-');
+    } else {
+        return numbers.replace(/(\d{3})(\d{2})(\d{0,5})/, '$1-$2-$3');
+    }
+}
+
+// 이벤트 리스너 등록
+document.addEventListener('DOMContentLoaded', function() {
+    const usernameInput = document.getElementById('signup-username-purchase');
+    const usernameForm = document.getElementById('signUpPurchase');
+    
+    usernameInput.addEventListener('input', function() {
+        this.dataset.duplicateChecked = 'false';
+        checkFormValidity();
     });
-}
-
-// 에러 메시지 div 생성 함수
-function createErrorMessageDiv(form) {
-    const submitBtn = form.querySelector('.submit-btn');
-    let errorMessageDiv = form.querySelector('.error-message');
     
-    if (!errorMessageDiv) {
-        errorMessageDiv = document.createElement('div');
-        errorMessageDiv.className = 'error-message';
-        form.insertBefore(errorMessageDiv, submitBtn);
+    usernameInput.addEventListener('blur', function() {
+        const validation = validators.validateUsername(this.value);
+        updateInputStyle(this, validation.isValid);
+        
+        if (!validation.isValid && this.value) {
+            showError('signup-id-purchase', validation.message);
+        } else if (this.value) {
+            hideError('signup-id-purchase');
+        }
+        checkFormValidity();
+    });
+    
+    // 아이디 중복 확인 (구매자)
+    usernameForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const username = usernameInput.value;
+        const validation = validators.validateUsername(username);
+
+        if (!validation.isValid) {
+            showError('signup-id-purchase', validation.message);
+            updateInputStyle(usernameInput, false);
+            usernameInput.dataset.duplicateChecked = 'false';
+            checkFormValidity();
+            return;
+        }
+
+        const result = await validateUsername(username);
+        
+        if (result.success) {
+            showError('signup-id-purchase', result.message, true);
+            updateInputStyle(usernameInput, true);
+            usernameInput.dataset.duplicateChecked = 'true';
+        } else {
+            showError('signup-id-purchase', result.message);
+            updateInputStyle(usernameInput, false);
+            usernameInput.dataset.duplicateChecked = 'false';
+        }
+
+        checkFormValidity();
+    });
+    
+    // 비밀번호 입력 (구매자)
+    const passwordInput = document.getElementById('signup-pw-purchase');
+    const passwordGroup = passwordInput.closest('.password-group');
+    
+    passwordInput.addEventListener('input', function() {
+        const validation = validators.validatePassword(this.value);
+        updatePasswordIcon(passwordGroup, validation.isValid);
+        checkFormValidity();
+    });
+    
+    passwordInput.addEventListener('blur', function() {
+        const validation = validators.validatePassword(this.value);
+        updateInputStyle(this, validation.isValid);
+        
+        if (!validation.isValid && this.value) {
+            showError('signup-pw-error-purchase', validation.message);
+        } else if (this.value) {
+            hideError('signup-pw-error-purchase');
+        }
+        
+        const confirmPasswordInput = document.getElementById('signup-pw-reconfirm-purchase');
+        if (confirmPasswordInput.value) {
+            const confirmValidation = validators.validatePasswordConfirm(this.value, confirmPasswordInput.value);
+            updateInputStyle(confirmPasswordInput, confirmValidation.isValid);
+            const reconfirmGroup = confirmPasswordInput.closest('.reconfirm-group');
+            updatePasswordIcon(reconfirmGroup, confirmValidation.isValid);
+            
+            if (!confirmValidation.isValid) {
+                showError('signup-pw-reconfirm-purchase', confirmValidation.message);
+            } else {
+                hideError('signup-pw-reconfirm-purchase');
+            }
+        }
+        checkFormValidity();
+    });
+    
+    passwordInput.addEventListener('focus', function() {
+        checkSequentialInput('password');
+    });
+    
+    // 비밀번호 재확인 (구매자)
+    const confirmPasswordInput = document.getElementById('signup-pw-reconfirm-purchase');
+    const reconfirmGroup = confirmPasswordInput.closest('.reconfirm-group');
+    
+    confirmPasswordInput.addEventListener('input', function() {
+        const password = passwordInput.value;
+        const validation = validators.validatePasswordConfirm(password, this.value);
+        updatePasswordIcon(reconfirmGroup, validation.isValid);
+        checkFormValidity();
+    });
+    
+    confirmPasswordInput.addEventListener('blur', function() {
+        const password = passwordInput.value;
+        const validation = validators.validatePasswordConfirm(password, this.value);
+        updateInputStyle(this, validation.isValid);
+        
+        if (!validation.isValid && this.value) {
+            showError('signup-pw-reconfirm-purchase', validation.message);
+        } else if (this.value) {
+            hideError('signup-pw-reconfirm-purchase');
+        }
+        checkFormValidity();
+    });
+    
+    confirmPasswordInput.addEventListener('focus', function() {
+        checkSequentialInput('passwordConfirm');
+        
+        if (!passwordInput.value) {
+            showError('signup-pw-error-purchase', '이 필드는 필수 항목입니다.');
+            updateInputStyle(passwordInput, false);
+        }
+    });
+    
+    // 이름 입력 (구매자)
+    const nameInput = document.querySelector('input[name="name"]');
+    nameInput.addEventListener('blur', function() {
+        const validation = validators.validateName(this.value);
+        updateInputStyle(this, validation.isValid);
+        
+        if (!validation.isValid && this.value) {
+            showError('signup-name-error-purchase', validation.message);
+        } else if (this.value) {
+            hideError('signup-name-error-purchase');
+        }
+        checkFormValidity();
+    });
+    
+    nameInput.addEventListener('focus', function() {
+        checkSequentialInput('name');
+    });
+    
+    // 휴대폰 번호 입력 (구매자)
+    const phoneMiddleInput = document.getElementById('phone-middle');
+    const phoneLastInput = document.getElementById('phone-last');
+    
+    function validatePhoneInputs() {
+        const prefix = document.getElementById('phone-prefix').value;
+        const middle = phoneMiddleInput.value;
+        const last = phoneLastInput.value;
+        const fullPhone = prefix + middle + last;
+        
+        if (middle && last) {
+            const validation = validators.validatePhone(fullPhone);
+            updateInputStyle(phoneMiddleInput, validation.isValid);
+            updateInputStyle(phoneLastInput, validation.isValid);
+            
+            if (!validation.isValid) {
+                showError('signup-phone-purchase', validation.message);
+            } else {
+                hideError('signup-phone-purchase');
+            }
+        }
+        checkFormValidity();
     }
     
-    return errorMessageDiv;
-}
-
-// 현재 로그인된 사용자 정보 가져오기
-function getCurrentUser() {
-    const userInfo = localStorage.getItem('user_info');
-    return userInfo ? JSON.parse(userInfo) : null;
-}
-
-// 로그인 상태 확인
-function isLoggedIn() {
-    const accessToken = localStorage.getItem('access_token');
-    const refreshToken = localStorage.getItem('refresh_token');
-    return !!(accessToken && refreshToken);
-}
-
-// 탭 전환 함수 (HTML에서 onclick으로 호출되는 경우를 위해)
-function switchTab(tabType) {
-    const tabButtons = document.querySelectorAll('.tab-button button');
-    const tabContents = document.querySelectorAll('.tab-content > div');
+    phoneMiddleInput.addEventListener('blur', validatePhoneInputs);
+    phoneLastInput.addEventListener('blur', validatePhoneInputs);
     
-    // 구매회원/판매회원에 따른 인덱스 설정
-    const index = tabType === 'purchase' ? 0 : 1;
+    [phoneMiddleInput, phoneLastInput].forEach(input => {
+        input.addEventListener('focus', function() {
+            checkSequentialInput('phone');
+        });
+        
+        input.addEventListener('keypress', function(e) {
+            if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // 판매회원가입
+    function initSaleSignup() {
+        // 아이디
+        const saleUsernameInput = document.getElementById('signup-username-sale');
+        const saleUsernameForm = document.getElementById('signUpSale');
+        
+        if (saleUsernameInput) {
+            saleUsernameInput.addEventListener('input', function() {
+                this.dataset.duplicateChecked = 'false';
+                checkSaleFormValidity();
+            });
+            
+            saleUsernameInput.addEventListener('blur', function() {
+                const validation = validators.validateUsername(this.value);
+                updateInputStyle(this, validation.isValid);
+                
+                if (!validation.isValid && this.value) {
+                    showError('signup-id-sale', validation.message);
+                } else if (this.value) {
+                    hideError('signup-id-sale');
+                }
+                checkSaleFormValidity();
+            });
+        }
+        
+        // 아이디 중복 확인 - 판매자용
+        if (saleUsernameForm) {
+            saleUsernameForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const username = saleUsernameInput.value;
+                const validation = validators.validateUsername(username);
+
+                if (!validation.isValid) {
+                    showError('signup-id-sale', validation.message);
+                    updateInputStyle(saleUsernameInput, false);
+                    saleUsernameInput.dataset.duplicateChecked = 'false';
+                    checkSaleFormValidity();
+                    return;
+                }
+
+                const result = await validateUsername(username);
+                
+                if (result.success) {
+                    showError('signup-id-sale', result.message, true);
+                    updateInputStyle(saleUsernameInput, true);
+                    saleUsernameInput.dataset.duplicateChecked = 'true';
+                } else {
+                    showError('signup-id-sale', result.message);
+                    updateInputStyle(saleUsernameInput, false);
+                    saleUsernameInput.dataset.duplicateChecked = 'false';
+                }
+
+                checkSaleFormValidity();
+            });
+        }
+        
+        // 판매 회원가입 - 비밀번호
+        const salePasswordInput = document.getElementById('signup-pw-sale');
+        if (salePasswordInput) {
+            const salePasswordGroup = salePasswordInput.closest('.password-group');
+            
+            salePasswordInput.addEventListener('input', function() {
+                const validation = validators.validatePassword(this.value);
+                updatePasswordIcon(salePasswordGroup, validation.isValid);
+                checkSaleFormValidity();
+            });
+            
+            salePasswordInput.addEventListener('blur', function() {
+                const validation = validators.validatePassword(this.value);
+                updateInputStyle(this, validation.isValid);
+                
+                if (!validation.isValid && this.value) {
+                    showError('signup-pw-error-sale', validation.message);
+                } else if (this.value) {
+                    hideError('signup-pw-error-sale');
+                }
+                checkSaleFormValidity();
+            });
+        }
+        
+        // 판매 회원가입 - 비밀번호 재확인
+        const saleConfirmPasswordInput = document.getElementById('signup-pw-reconfirm-sale');
+        if (saleConfirmPasswordInput) {
+            const saleReconfirmGroup = saleConfirmPasswordInput.closest('.reconfirm-group');
+            
+            saleConfirmPasswordInput.addEventListener('input', function() {
+                const password = salePasswordInput.value;
+                const validation = validators.validatePasswordConfirm(password, this.value);
+                updatePasswordIcon(saleReconfirmGroup, validation.isValid);
+                checkSaleFormValidity();
+            });
+            
+            saleConfirmPasswordInput.addEventListener('blur', function() {
+                const password = salePasswordInput.value;
+                const validation = validators.validatePasswordConfirm(password, this.value);
+                updateInputStyle(this, validation.isValid);
+                
+                if (!validation.isValid && this.value) {
+                    showError('signup-pw-reconfirm-sale', validation.message);
+                } else if (this.value) {
+                    hideError('signup-pw-reconfirm-sale');
+                }
+                checkSaleFormValidity();
+            });
+        }
+        
+        // 판매 회원가입 - 이름
+        const saleNameInput = document.getElementById('signup-name-sale');
+        if (saleNameInput) {
+            saleNameInput.addEventListener('blur', function() {
+                const validation = validators.validateName(this.value);
+                updateInputStyle(this, validation.isValid);
+                
+                if (!validation.isValid && this.value) {
+                    showError('signup-name-error-sale', validation.message);
+                } else if (this.value) {
+                    hideError('signup-name-error-sale');
+                }
+                checkSaleFormValidity();
+            });
+        }
+        
+        // 판매 회원가입 - 휴대폰 번호
+        const salePhoneMiddleInput = document.getElementById('phone-middle-sale');
+        const salePhoneLastInput = document.getElementById('phone-last-sale');
+        
+        function validateSalePhoneInputs() {
+            const prefix = document.getElementById('phone-prefix-sale').value;
+            const middle = salePhoneMiddleInput.value;
+            const last = salePhoneLastInput.value;
+            const fullPhone = prefix + middle + last;
+            
+            if (middle && last) {
+                const validation = validators.validatePhone(fullPhone);
+                updateInputStyle(salePhoneMiddleInput, validation.isValid);
+                updateInputStyle(salePhoneLastInput, validation.isValid);
+                
+                if (!validation.isValid) {
+                    showError('signup-phone-sale', validation.message);
+                } else {
+                    hideError('signup-phone-sale');
+                }
+            }
+            checkSaleFormValidity();
+        }
+        
+        if (salePhoneMiddleInput && salePhoneLastInput) {
+            salePhoneMiddleInput.addEventListener('blur', validateSalePhoneInputs);
+            salePhoneLastInput.addEventListener('blur', validateSalePhoneInputs);
+            
+            [salePhoneMiddleInput, salePhoneLastInput].forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        }
+        
+// 판매 회원가입 - 사업자 등록번호
+    const businessNumberInput = document.getElementById('signup-business-number');
+    const businessConfirmBtn = document.getElementById('business-confirm-btn');
     
-    // 모든 탭 버튼과 컨텐츠에서 active 클래스 제거
-    tabButtons.forEach(btn => btn.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-    
-    // 선택된 탭 활성화
-    if (tabButtons[index] && tabContents[index]) {
-        tabButtons[index].classList.add('active');
-        tabContents[index].classList.add('active');
+    if (businessNumberInput) {
+        businessNumberInput.addEventListener('input', function() {
+            const numbers = this.value.replace(/[^\d]/g, '');
+            this.value = numbers.slice(0, 10);
+            this.dataset.businessChecked = 'false';
+        });
+        
+        businessNumberInput.addEventListener('blur', function() {
+            const validation = validators.validateBusinessNumber(this.value);
+            updateInputStyle(this, validation.isValid);
+            
+            if (!validation.isValid && this.value) {
+                showError('signup-business-error', validation.message);
+            } else if (this.value) {
+                hideError('signup-business-error');
+            }
+        });
+        
+        businessNumberInput.addEventListener('keypress', function(e) {
+            if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
     }
     
-    // 에러 메시지 초기화
-    clearErrorMessages();
+    // 사업자 등록번호 인증 버튼 - API 연동
+    if (businessConfirmBtn) {
+        businessConfirmBtn.addEventListener('click', async function() {
+            const businessNumber = businessNumberInput.value;
+            const validation = validators.validateBusinessNumber(businessNumber);
+            
+            if (!validation.isValid) {
+                showError('signup-business-error', validation.message);
+                updateInputStyle(businessNumberInput, false);
+                businessNumberInput.dataset.businessChecked = 'false';
+                return;
+            }
+            
+            try {
+                const res = await fetch('https://api.wenivops.co.kr/services/open-market/accounts/seller/validate-registration-number/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ company_registration_number: businessNumber }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.message) {
+                    showError('signup-business-error', data.message, true);
+                    updateInputStyle(businessNumberInput, true);
+                    businessNumberInput.dataset.businessChecked = 'true';
+                } else {
+                    showError('signup-business-error', data.error || '사업자 등록번호 검증에 실패했습니다.');
+                    updateInputStyle(businessNumberInput, false);
+                    businessNumberInput.dataset.businessChecked = 'false';
+                }
+            } catch (err) {
+                console.error('사업자 등록번호 검증 실패:', err);
+                showError('signup-business-error', '서버 요청 중 오류가 발생했습니다.');
+                updateInputStyle(businessNumberInput, false);
+                businessNumberInput.dataset.businessChecked = 'false';
+            }
+        });
+    }
+    
+    // 판매 회원가입 - 스토어 이름
+    const storeNameInput = document.getElementById('signup-store-name');
+    if (storeNameInput) {
+        storeNameInput.addEventListener('blur', function() {
+            const validation = validators.validateStoreName(this.value);
+            updateInputStyle(this, validation.isValid);
+            
+            if (!validation.isValid && this.value) {
+                showError('signup-store-error', validation.message);
+            } else if (this.value) {
+                hideError('signup-store-error');
+            }
+        });
+    }
 }
+
+const consentCheckEmpty = document.getElementById('consent-check-empty');
+const consentCheckFill = document.getElementById('consent-check-fill');
+const consentCheckbox = document.getElementById('information');
+
+// 초기 상태 설정 
+consentCheckEmpty.classList.add('show');
+consentCheckFill.classList.remove('show');
+
+// 체크박스 아이콘 클릭 이벤트
+function toggleConsent() {
+    const isChecked = consentCheckbox.checked;
+    
+    if (isChecked) {
+        consentCheckEmpty.classList.remove('show');
+        consentCheckFill.classList.add('show');
+        consentCheckbox.checked = false;
+    } else {
+        consentCheckEmpty.classList.add('show');
+        consentCheckFill.classList.remove('show');
+        consentCheckbox.checked = true;
+    }
+    
+    checkFormValidity();
+}
+
+consentCheckEmpty.addEventListener('click', toggleConsent);
+consentCheckFill.addEventListener('click', toggleConsent);
+
+// 라벨 클릭 시에도 체크박스 토글
+document.querySelector('.consent label').addEventListener('click', function(e) {
+    e.preventDefault();
+    toggleConsent();
+});
+
+consentCheckbox.addEventListener('change', function() {
+    if (this.checked) {
+        consentCheckEmpty.classList.remove('show');
+        consentCheckFill.classList.add('show');
+    } else {
+        consentCheckEmpty.classList.add('show');
+        consentCheckFill.classList.remove('show');
+    }
+    checkFormValidity();
+});
+
+// 가입하기 버튼 - API 연동 (수정된 부분)
+const joinButton = document.getElementById('join-submit-btn');
+joinButton.addEventListener('click', async function() {
+    if (!this.disabled) {
+        const currentTab = document.querySelector('.tab-content .active') || document.querySelector('.tab-purchase.active');
+        
+        if (document.querySelector('.tab-purchase.active')) {
+            // 구매자 회원가입
+            const userData = {
+                username: document.getElementById('signup-username-purchase').value,
+                password: document.getElementById('signup-pw-purchase').value,
+                name: document.querySelector('input[name="name"]').value,
+                phone_number: document.getElementById('phone-prefix').value + document.getElementById('phone-middle').value + document.getElementById('phone-last').value
+            };
+            
+            try {
+                const res = await fetch('https://api.wenivops.co.kr/services/open-market/accounts/buyer/signup/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('구매자 회원가입에 성공했습니다! :)');
+                    console.log('회원가입 성공:', data);
+                    // 로그인 페이지로 이동
+                    window.location.href = 'https://6wol.github.io/open-market/login.html';
+                } else {
+                    console.error('회원가입 실패:', data);
+                    alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+                }
+            } catch (err) {
+                console.error('회원가입 요청 실패:', err);
+                alert('서버 요청 중 오류가 발생했습니다.');
+            }
+        } else if (document.querySelector('.tab-sale.active')) {
+            // 판매자 회원가입
+            const userData = {
+                username: document.getElementById('signup-username-sale').value,
+                password: document.getElementById('signup-pw-sale').value,
+                name: document.getElementById('signup-name-sale').value,
+                phone_number: document.getElementById('phone-prefix-sale').value + document.getElementById('phone-middle-sale').value + document.getElementById('phone-last-sale').value,
+                company_registration_number: document.getElementById('signup-business-number').value,
+                store_name: document.getElementById('signup-store-name').value
+            };
+            
+            try {
+                const res = await fetch('https://api.wenivops.co.kr/services/open-market/accounts/seller/signup/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('판매자 회원가입에 성공했습니다! :)');
+                    console.log('회원가입 성공:', data);
+                    // 로그인 페이지로 이동
+                    window.location.href = 'https://6wol.github.io/open-market/login.html';
+                } else {
+                    console.error('회원가입 실패:', data);
+                    alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+                }
+            } catch (err) {
+                console.error('회원가입 요청 실패:', err);
+                alert('서버 요청 중 오류가 발생했습니다.');
+            }
+        }
+    }
+});
+    
+    // 초기 상태 설정
+    checkFormValidity();
+    initSaleSignup();
+});
