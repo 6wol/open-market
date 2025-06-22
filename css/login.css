@@ -1,0 +1,190 @@
+/* ----------
+    숨김 처리
+---------- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: polygon(0 0, 0 0, 0 0);
+    white-space: nowrap;
+}
+
+/* ----------
+    기본 스타일
+---------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: SpoqaHanSansNeo-Regular;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ----------
+    header
+---------- */
+header {
+    margin-top: 15vh;
+    margin-bottom: 70px;
+}
+
+header img {
+    width: 238px;
+    height: auto;
+}
+
+/* ----------
+    main
+---------- */
+.login {
+    border: none;
+    border-left: 1px solid #C4C4C4;
+    border-right: 1px solid #C4C4C4;
+    border-bottom: 1px solid #C4C4C4;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 550px;
+}
+
+.tab-button {
+    display: flex;
+    position: relative;
+    z-index: 1;
+}
+
+.tab-button button {
+    flex: 1;
+    padding: 15px;
+    border-radius: 10px 10px 0 0;
+    color: #333333;
+    background-color: #F2F2F2;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.tab-button-login1 {
+    border: none;
+    border-top: 1px solid #C4C4C4;
+    border-right: 1px solid #C4C4C4;
+    border-bottom: 1px solid #C4C4C4;;
+}
+
+.tab-button-login1.active{
+    border: none;
+    border-top: 1px solid #C4C4C4;
+    border-right: 1px solid #C4C4C4;
+    color: #000000;
+    background-color: #FFFFFF;
+}
+
+.tab-button-login2 {
+    border: none;
+    border-top: 1px solid #C4C4C4;
+    border-left: 1px solid #C4C4C4;
+    border-bottom: 1px solid #C4C4C4;
+}
+
+.tab-button-login2.active{
+    border: none;
+    border-top: 1px solid #C4C4C4;
+    border-left: 1px solid #C4C4C4;
+    color: #000000;
+    background-color: #FFFFFF;
+}
+
+.tab-content {
+    padding: 30px;
+}
+
+.tab-purchase, .tab-sale {
+    display: none;
+}
+
+.tab-purchase.active, .tab-sale.active {
+    display: block;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input {
+    padding: 15px 0;
+    border: none;
+    border-bottom: 1px solid #C4C4C4;
+    background: transparent;
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus {
+    border-bottom: 2px solid #21bf48;
+}
+
+input::placeholder {
+    color: #999;
+}
+
+.error-message {
+    color: #EB5757;
+    font-size: 16px;
+    min-height: 20px;
+    text-align: left;
+    margin: 0;
+    transition: margin 0.3s ease;
+}
+
+.error-message.show {
+    margin-top: 26px;
+    margin-bottom: 26px;
+}
+
+.submit-btn {
+    font-size: 18px;
+    border-radius: 5px;
+    color: #FFFFFF;
+    background-color: #21BF48;
+    border: none;
+    padding: 19px;
+    cursor: pointer;
+    margin-bottom: 36px;
+}
+
+.submit-btn:hover {
+    background-color: #1da83e;
+}
+/* ----------
+    footer
+---------- */
+footer {
+    margin-top: 30px;
+}
+
+.signup-pw {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #333333;
+}
+
+.signup-pw a {
+    text-decoration: none;
+    color: #333333;
+    font-size: 16px;
+}
+
+.signup-pw a:hover {
+    color: #21BF48;
+}

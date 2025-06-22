@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/signup.css">
+</head>
+
+<body>
+    <header>
+        <h1 class="sr-only">로고</h1>
+        <a href="#">
+            <img src="img/Logo-hodu.png" alt="logo">
+        </a>
+    </header>
+
+    <main>
+        <h2 class="sr-only">회원가입</h2>
+        <section class="login">
+            <h3 class="sr-only">회원가입 구현</h3>
+
+            <div class="tab-button">
+                <button class="tab-button-login1 active" onclick="switchTab('purchase')">
+                    구매 회원가입
+                </button>
+                <button class="tab-button-login2" onclick="switchTab('sale')">
+                    판매 회원가입
+                </button>
+            </div>
+
+            <!-- 구매 회원가입 -->
+            <div class="tab-content">
+                <div class="tab-purchase active" id="signup-purchase">
+                    <form id="signUpPurchase">
+                        <label for="signup-username">아이디</label>
+                        <div class="idGroup">
+                            <input type="text" id="signup-username-purchase" name="username" aria-label="아이디">
+                            <button class="submit-btn" type="submit">중복확인</button>
+                        </div>
+                        <div class="error-message" id="signup-id-purchase"></div>
+                        
+                        <div>
+                            <label for="signup-pw-purchase">비밀번호</label>
+                            <div class="password-group">
+                                <input type="password" id="signup-pw-purchase" name="pw" aria-label="비밀번호">
+                                <img src="img/icon-check-off.svg" alt="비밀번호 확인" class="password-check-icon" id="password-check-off">
+                                <img src="img/icon-check-on.svg" alt="비밀번호 확인" class="password-check-icon" id="password-check-on">
+                            </div>
+                            <div class="error-message" id="signup-pw-error-purchase"></div>
+                        </div>
+
+                        <div>
+                            <label for="signup-pw-reconfirm">비밀번호 재확인</label>
+                            <div class="reconfirm-group">
+                                <input type="password" id="signup-pw-reconfirm-purchase" name="pw-re" aria-label="비밀번호 재확인">
+                                <img src="img/icon-check-off.svg" alt="비밀번호 확인" class="password-check-icon" id="password-check-off">
+                                <img src="img/icon-check-on.svg" alt="비밀번호 확인" class="password-check-icon" id="password-check-on">
+                            </div>
+                            <div class="error-message" id="signup-pw-reconfirm-purchase"></div>
+                        </div>
+
+                        <label for="signup-name-purchase">이름</label>
+                        <input type="text" id="signup-username-purchase" name="name" aria-label="이름">
+                        <div class="error-message" id="signup-name-error-purchase"></div>
+
+                        <label for="signup-phone">휴대폰번호</label>
+                        <div class="signup-phone-group">
+                            <select id="phone-prefix" name="phone-prefix">
+                                    <option value="010">010</option>
+                                    <option value="011">011</option>
+                                    <option value="016">016</option>
+                                    <option value="017">017</option>
+                                    <option value="018">018</option>
+                                    <option value="019">019</option>
+                            </select>
+                            <input type="tel" id="phone-middle" name="phone-middle" maxlength="4">
+                            <input type="tel" id="phone-last" name="phone-last" maxlength="4">
+                        </div>
+                        <div class="error-message" id="signup-phone-purchase"></div>
+                    </form>
+                </div>
+
+        <!-- 판매 회원가입 -->
+        <div class="tab-sale" id="signup-sale">
+            <form id="signUpSale">
+                <label for="signup-username-sale">아이디</label>
+                <div class="idGroup">
+                    <input type="text" id="signup-username-sale" name="username" aria-label="아이디">
+                    <button class="submit-btn" type="submit">중복확인</button>
+                </div>
+                <div class="error-message" id="signup-id-sale"></div>
+                
+                <div>
+                    <label for="signup-pw-sale">비밀번호</label>
+                    <div class="password-group">
+                        <input type="password" id="signup-pw-sale" name="pw" aria-label="비밀번호">
+                        <img src="img/icon-check-off.svg" alt="비밀번호 확인" class="password-check-icon" id="password-check-off-sale">
+                        <img src="img/icon-check-on.svg" alt="비밀번호 확인" class="password-check-icon" id="password-check-on-sale">
+                    </div>
+                    <div class="error-message" id="signup-pw-error-sale"></div>
+                </div>
+
+                <div>
+                    <label for="signup-pw-reconfirm-sale">비밀번호 재확인</label>
+                    <div class="reconfirm-group">
+                        <input type="password" id="signup-pw-reconfirm-sale" name="pw-re" aria-label="비밀번호 재확인">
+                        <img src="img/icon-check-off.svg" alt="비밀번호 확인" class="password-check-icon" id="password-recheck-off-sale">
+                        <img src="img/icon-check-on.svg" alt="비밀번호 확인" class="password-check-icon" id="password-recheck-on-sale">
+                    </div>
+                    <div class="error-message" id="signup-pw-reconfirm-sale"></div>
+                </div>
+
+                <label for="signup-name-sale">이름</label>
+                <input type="text" id="signup-name-sale" name="name" aria-label="이름">
+                <div class="error-message" id="signup-name-error-sale"></div>
+
+                <label for="signup-phone-sale">휴대폰번호</label>
+                <div class="signup-phone-group">
+                    <select id="phone-prefix-sale" name="phone-prefix">
+                        <option value="010">010</option>
+                        <option value="011">011</option>
+                        <option value="016">016</option>
+                        <option value="017">017</option>
+                        <option value="018">018</option>
+                        <option value="019">019</option>
+                    </select>
+                    <input type="tel" id="phone-middle-sale" name="phone-middle" maxlength="4">
+                    <input type="tel" id="phone-last-sale" name="phone-last" maxlength="4">
+                </div>
+                <div class="error-message" id="signup-phone-sale"></div>
+
+                <label for="signup-business-number">사업자 등록번호</label>
+                <div class="business-number-group">
+                    <input type="text" id="signup-business-number" name="business-number" aria-label="사업자 등록번호" maxlength="12" placeholder="000-00-00000">
+                    <button class="submit-btn" type="button" id="business-confirm-btn">인증</button>
+                </div>
+                <div class="error-message" id="signup-business-error"></div>
+
+                <label for="signup-store-name">스토어 이름</label>
+                <input type="text" id="signup-store-name" name="store-name" aria-label="스토어 이름">
+                <div class="error-message" id="signup-store-error"></div>
+            </form>
+            </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <h2 class="sr-only">이용약관 & 가입하기</h2>
+        <div class="consent">
+            <div class="consent-checkbox">
+                <img src="img/check-box.svg" alt="이용약관체크박스" class="consent-check-icon" id="consent-check-empty">
+                <img src="img/check-fill-box.svg" alt="이용약관체크박스" class="consent-check-icon" id="consent-check-fill">
+                <input type="checkbox" id="information" style="display: none;">
+                <label for="information">
+                    호두샵의 <a href="#">이용약관</a> 및 <a href="#">개인정보처리방침</a>에 대한 내용을 확인하였고 동의합니다.
+                </label>
+            </div>
+            <button class="submit-btn" type="button" id="join-submit-btn">가입하기</button>
+        </div>
+    </footer>
+    <script src="js/signup.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,263 @@
+/* ----------
+    아이디 입력
+---------- */
+.idGroup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.idGroup input {
+    flex: 1;
+}
+
+.idGroup .submit-btn {
+    width: 122px;
+    height: 54px;
+    font-size: 16px;
+    margin-bottom: 0;
+    padding: 15px 20px;
+    flex-shrink: 0;
+}
+
+/* ----------
+    비밀번호 입력
+---------- */
+.password-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-group input {
+    flex: 1;
+    padding-right: 50px;
+}
+
+.password-check-icon {
+    position: absolute;
+    right: 15px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: none;
+}
+
+.password-check-icon.show {
+    display: block;
+}
+
+/* ----------
+    비밀번호 재확인
+---------- */
+.reconfirm-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.reconfirm-group input {
+    flex: 1;
+    padding-right: 50px;
+}
+
+.reconfirm-group .password-check-icon {
+    position: absolute;
+    right: 15px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: none;
+}
+
+.reconfirm-group .password-check-icon.show {
+    display: block;
+}
+
+/* ----------
+    휴대전화
+---------- */
+.signup-phone-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.signup-phone-group select {
+    padding: 15px 10px;
+    border: none;
+    border-bottom: 1px solid #C4C4C4;
+    background: transparent;
+    font-size: 16px;
+    outline: none;
+    width: 80px;
+    cursor: pointer;
+}
+
+.signup-phone-group select:focus {
+    border-bottom: 2px solid #21bf48;
+}
+
+.signup-phone-group input {
+    flex: 1;
+    text-align: center;
+}
+
+label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #767676;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    display: block;
+}
+
+label:first-child {
+    margin-top: 0;
+}
+
+input.valid {
+    border-bottom: 2px solid #21bf48;
+}
+
+input.invalid {
+    border-bottom: 2px solid #EB5757;
+}
+
+/* ----------
+    체크박스
+---------- */
+.consent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 50px;
+    margin-top: 34px;
+}
+
+.consent-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+.consent-check-icon {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    display: none;
+}
+
+.consent-check-icon.show {
+    display: block;
+}
+
+#consent-check-empty.show {
+    display: block;
+}
+
+#consent-check-fill.show {
+    display: block;
+}
+
+.consent label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #767676;
+    cursor: pointer;
+    margin: 0;
+    line-height: 20px;
+}
+
+.consent a {
+    color: #21BF48;
+    text-decoration: underline;
+    cursor: pointer;
+    margin: 0 3px;
+}
+
+.consent a:hover {
+    color: #1da83e;
+}
+
+.consent .submit-btn {
+    width: 480px;
+    margin-bottom: 0;
+}
+
+/* ----------
+    사업자 등록번호
+---------- */
+.business-number-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.business-number-group input {
+    flex: 1;
+}
+
+.business-number-group .submit-btn {
+    width: 122px;
+    height: 54px;
+    font-size: 16px;
+    margin-bottom: 0;
+    padding: 15px 20px;
+    flex-shrink: 0;
+}
+
+#signup-business-number::placeholder {
+    color: #C4C4C4;
+}
+
+/* ----------
+    탭
+---------- */
+.tab-sale {
+    display: none;
+}
+
+.tab-sale.active {
+    display: block;
+}
+
+
+/* ----------
+    error-message
+---------- */
+.error-message.visible {
+    opacity: 1;
+    max-height: 50px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.error-message {
+    opacity: 0;
+    max-height: 0;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.error-message.success {
+    color: #21BF48;
+}
+
+/* ----------
+    btn
+---------- */
+.submit-btn:disabled {
+    background-color: #C4C4C4;
+    cursor: not-allowed;
+}
+
+.submit-btn:disabled:hover {
+    background-color: #C4C4C4;
+}

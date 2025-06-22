@@ -1,0 +1,265 @@
+/* ----------
+    숨김 처리
+---------- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: polygon(0 0, 0 0, 0 0);
+    white-space: nowrap;
+}
+
+/* ----------
+    header
+---------- */
+header {
+    box-shadow: 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.header-search {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 22px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-search {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.logo {
+    margin-right: 30px;
+}
+
+.logo img {
+    width: 124px;
+    height: 38px;
+}
+
+.search-container {
+    position: relative;
+    width: 400px;
+}
+
+#search-input {
+    width: 100%;
+    height: 46px;
+    padding: 0 50px 0 22px;
+    border: 2px solid #21bf48;
+    border-radius: 50px;
+    font-size: 16px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.search-btn {
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.search-btn img {
+    width: 18px;
+    height: 18px;
+}
+
+/* 마이페이지/장바구니 영역 스타일 */
+.my {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 26px;
+}
+
+.cart-section,
+.user-section {
+    position: relative;
+}
+
+.cart-link,
+.user-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #767676;
+    cursor: pointer;
+}
+
+.cart-link span,
+.user-link span {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.cart-icon,
+.user-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.cart-section.active .cart-icon {
+    content: url('../img/icon-shopping-cart-2.svg');
+}
+
+.user-section.active .user-icon {
+    content: url('../img/icon-user-2.svg');
+}
+
+/* 드롭다운 */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #c4c4c4;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    min-width: 130px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu ul {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.dropdown-menu li {
+    padding: 0;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #767676;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f2f2f2;
+}
+
+.dropdown-menu li:first-child a {
+    border-radius: 10px 10px 0 0;
+}
+
+.dropdown-menu li:last-child a {
+    border-radius: 0 0 10px 10px;
+}
+
+.dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border: 1px solid #c4c4c4;
+    border-bottom: none;
+    border-right: none;
+    transform: rotate(45deg);
+    
+}
+
+/* ----------
+    footer
+---------- */
+footer {
+    margin-top: 180px;
+    background-color: #f2f2f2;
+    padding: 60px 0 63px;
+}
+
+.footer-container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.footer-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.footer-information {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 14px;
+    align-items: center;
+    color: #767676;
+}
+
+.footer-information a {
+    text-decoration: none;
+    color: #767676;
+    font-size: 14px;
+}
+
+.footer-sns {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 14px;
+}
+
+.footer-sns img {
+    width: 32px;
+    height: 32px;
+}
+
+.footer-info {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.company-name {
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.company-details {
+    color: #767676;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.company-details p {
+    margin: 4px 0;
+}
+

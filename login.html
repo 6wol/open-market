@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+    <header>
+        <h1 class="sr-only">로고</h1>
+        <a href="#">
+            <img src="img/Logo-hodu.png" alt="logo">
+        </a>
+    </header>
+
+    <main>
+        <h2 class="sr-only">로그인</h2>
+        <section class="login">
+            <h3 class="sr-only">로그인 구현</h3>
+
+            <div class="tab-button">
+                <button class="tab-button-login1 active" onclick="switchTab('purchase')">
+                    구매회원 로그인
+                </button>
+                <button class="tab-button-login2" onclick="switchTab('sale')">
+                    판매회원 로그인
+                </button>
+            </div>
+            
+            <div class="tab-content">
+                <div class="tab-purchase" id="login-purchase">
+                    <form id="loginFormPurchase">
+                        <input type="text" id="login-username-purchase" name="username" placeholder="아이디" aria-label="아이디">
+                        <input type="password" id="login-pw-purchase" name="pw" placeholder="비밀번호" aria-label="비밀번호">
+                        <div class="error-message" id="login-message-purchase"></div>
+                        <button class="submit-btn" type="submit">로그인</button>
+                    </form>
+                </div>
+                
+                <div class="tab-sale" id="login-sale">
+                    <form id="loginForm">
+                        <input type="text" id="login-username-sale" name="username" placeholder="아이디" aria-label="아이디">
+                        <input type="password" id="login-pw-sale" name="pw" placeholder="비밀번호" aria-label="비밀번호">
+                        <div class="error-message" id="login-message-sale"></div>
+                        <button class="submit-btn" type="submit">로그인</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <h2 class="sr-only">회원가입 & 비밀번호 찾기</h2>
+        <ul class="signup-pw">
+            <li class="signup"><a href="#">회원가입</a></li>
+            <li>|</li>
+            <li class="pw"><a href="#">비밀번호 찾기</a></li>
+        </ul>
+    </footer>
+    <script src="js/login.js"></script>
+</body>
+</html>
