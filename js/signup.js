@@ -83,7 +83,6 @@ const validators = {
     },
 
     validateBusinessNumber: function(businessNumber) {
-        // 하이픈 제거하고 숫자만 체크
         const cleanNumber = businessNumber.replace(/-/g, '');
         if (!businessNumber) {
             return { isValid: false, message: '이 필드는 필수 항목입니다.' };
@@ -250,7 +249,7 @@ function checkSaleFormValidity() {
     }
 }
 
-// API 호출 함수들
+// API 호출
 async function validateUsername(username) {
     try {
         const response = await fetch(`${API_BASE_URL}/accounts/validate-username/`, {
@@ -343,12 +342,9 @@ async function signupSeller(userData) {
     }
 }
 
-// 사업자 등록번호 자동 하이픈 추가
+
 function formatBusinessNumber(value) {
-    // 숫자만 추출
     const numbers = value.replace(/[^\d]/g, '');
-    
-    // 하이픈 추가
     if (numbers.length <= 3) {
         return numbers;
     } else if (numbers.length <= 5) {
@@ -360,18 +356,14 @@ function formatBusinessNumber(value) {
 
 // 이벤트 리스너 등록
 document.addEventListener('DOMContentLoaded', function() {
-    // 구매자 회원가입 - 아이디 입력 및 중복 확인
     const usernameInput = document.getElementById('signup-username-purchase');
     const usernameForm = document.getElementById('signUpPurchase');
     
-    // 아이디 입력 시
     usernameInput.addEventListener('input', function() {
-        // 중복확인 상태 초기화
         this.dataset.duplicateChecked = 'false';
         checkFormValidity();
     });
     
-    // 아이디 포커스 아웃 시 유효성 검사
     usernameInput.addEventListener('blur', function() {
         const validation = validators.validateUsername(this.value);
         updateInputStyle(this, validation.isValid);
@@ -536,7 +528,6 @@ document.addEventListener('DOMContentLoaded', function() {
             checkSequentialInput('phone');
         });
         
-        // 숫자만 입력 허용
         input.addEventListener('keypress', function(e) {
             if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
                 e.preventDefault();
@@ -544,9 +535,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 판매회원가입 관련 JavaScript
+    // 판매회원가입
     function initSaleSignup() {
-        // 판매 회원가입 - 아이디
+        // 아이디
         const saleUsernameInput = document.getElementById('signup-username-sale');
         const saleUsernameForm = document.getElementById('signUpSale');
         
@@ -792,7 +783,7 @@ const consentCheckEmpty = document.getElementById('consent-check-empty');
 const consentCheckFill = document.getElementById('consent-check-fill');
 const consentCheckbox = document.getElementById('information');
 
-// 초기 상태 설정 (빈 체크박스 표시)
+// 초기 상태 설정 
 consentCheckEmpty.classList.add('show');
 consentCheckFill.classList.remove('show');
 
@@ -822,8 +813,6 @@ document.querySelector('.consent label').addEventListener('click', function(e) {
     toggleConsent();
 });
 
-// 기존 동의 체크박스 이벤트 리스너 수정
-// const consentCheckbox = document.getElementById('information'); // 이미 위에서 선언됨
 consentCheckbox.addEventListener('change', function() {
     if (this.checked) {
         consentCheckEmpty.classList.remove('show');
@@ -835,7 +824,7 @@ consentCheckbox.addEventListener('change', function() {
     checkFormValidity();
 });
 
-    // 가입하기 버튼 - API 연동 추가
+    // 가입하기 버튼 - API 연동
     const joinButton = document.getElementById('join-submit-btn');
     joinButton.addEventListener('click', async function() {
         if (!this.disabled) {
@@ -861,10 +850,8 @@ consentCheckbox.addEventListener('change', function() {
 
                     if (res.ok) {
                         alert('구매자 회원가입이 완료되었습니다!');
-                        // 성공 시 로그인 페이지나 메인 페이지로 이동
                         console.log('회원가입 성공:', data);
                     } else {
-                        // 에러 메시지 표시
                         console.error('회원가입 실패:', data);
                         alert('회원가입에 실패했습니다. 다시 시도해주세요.');
                     }
@@ -894,10 +881,8 @@ consentCheckbox.addEventListener('change', function() {
 
                     if (res.ok) {
                         alert('판매자 회원가입이 완료되었습니다!');
-                        // 성공 시 로그인 페이지나 메인 페이지로 이동
                         console.log('회원가입 성공:', data);
                     } else {
-                        // 에러 메시지 표시
                         console.error('회원가입 실패:', data);
                         alert('회원가입에 실패했습니다. 다시 시도해주세요.');
                     }

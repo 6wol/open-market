@@ -77,7 +77,6 @@ header {
     height: 18px;
 }
 
-/* 마이페이지/장바구니 영역 스타일 */
 .my {
     display: flex;
     align-items: center;
@@ -122,7 +121,6 @@ header {
     content: url('../img/icon-user-2.svg');
 }
 
-/* 드롭다운 */
 .dropdown-menu {
     position: absolute;
     top: 100%;
@@ -189,6 +187,121 @@ header {
     border-right: none;
     transform: rotate(45deg);
     
+}
+
+/* ----------
+    main
+---------- */
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* 상품 카드 스타일 */
+.product-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+
+
+/* 상품 이미지 컨테이너 */
+.product-image {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.05);
+}
+
+/* 상품 정보 영역 */
+.product-info {
+    padding: 20px;
+}
+
+/* 상품 설명 */
+.product-description {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 5px;
+    font-weight: 400;
+}
+
+/* 상품명 */
+.product-name {
+    font-size: 16px;
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 16px;
+    line-height: 1.4;
+    overflow: hidden;
+}
+
+/* 가격 */
+.product-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+}
+
+/* 에러 메시지 스타일 */
+.error-message-container {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.error-message {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.retry-btn {
+    background: #21bf48;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.retry-btn:hover {
+    background: #1ea63f;
+}
+
+/* 로딩 상태 */
+.loading {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    color: #666;
 }
 
 /* ----------
