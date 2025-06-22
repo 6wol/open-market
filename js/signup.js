@@ -779,7 +779,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-// 체크박스 관련 코드 (수정된 부분)
 const consentCheckEmpty = document.getElementById('consent-check-empty');
 const consentCheckFill = document.getElementById('consent-check-fill');
 const consentCheckbox = document.getElementById('information');
@@ -793,51 +792,39 @@ function toggleConsent() {
     const isChecked = consentCheckbox.checked;
     
     if (isChecked) {
-        // 이미 체크되어 있으면 체크 해제
-        consentCheckEmpty.classList.add('show');
-        consentCheckFill.classList.remove('show');
-        consentCheckbox.checked = false;
-    } else {
-        // 체크되어 있지 않으면 체크
         consentCheckEmpty.classList.remove('show');
         consentCheckFill.classList.add('show');
+        consentCheckbox.checked = false;
+    } else {
+        consentCheckEmpty.classList.add('show');
+        consentCheckFill.classList.remove('show');
         consentCheckbox.checked = true;
     }
     
-    // 현재 활성화된 탭에 따라 해당 폼 유효성 검사 실행
-    if (document.querySelector('.tab-purchase.active')) {
-        checkFormValidity();
-    } else if (document.querySelector('.tab-sale.active')) {
-        checkSaleFormValidity();
-    }
+    checkFormValidity();
 }
-// 체크박스 이미지에만 클릭 이벤트 추가
+
 consentCheckEmpty.addEventListener('click', toggleConsent);
 consentCheckFill.addEventListener('click', toggleConsent);
 
-// 라벨 클릭 시 기본 동작 방지 (이용약관 링크는 동작하도록 함)
+// 라벨 클릭 시에도 체크박스 토글
 document.querySelector('.consent label').addEventListener('click', function(e) {
-    // 링크를 클릭한 경우에는 기본 동작 허용
-    if (e.target.tagName === 'A') {
-        return;
-    }
-    // 라벨의 다른 부분을 클릭한 경우 기본 동작 방지
     e.preventDefault();
+    toggleConsent();
 });
 
-// 숨겨진 체크박스의 change 이벤트는 제거하거나 주석 처리
-// consentCheckbox.addEventListener('change', function() {
-//     if (this.checked) {
-//         consentCheckEmpty.classList.remove('show');
-//         consentCheckFill.classList.add('show');
-//     } else {
-//         consentCheckEmpty.classList.add('show');
-//         consentCheckFill.classList.remove('show');
-//     }
-//     checkFormValidity();
-// });
+consentCheckbox.addEventListener('change', function() {
+    if (this.checked) {
+        consentCheckEmpty.classList.remove('show');
+        consentCheckFill.classList.add('show');
+    } else {
+        consentCheckEmpty.classList.add('show');
+        consentCheckFill.classList.remove('show');
+    }
+    checkFormValidity();
+});
 
- // 가입하기 버튼 - API 연동 (수정된 부분)
+// 가입하기 버튼 - API 연동 (수정된 부분)
 const joinButton = document.getElementById('join-submit-btn');
 joinButton.addEventListener('click', async function() {
     if (!this.disabled) {

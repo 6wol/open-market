@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 로그인 확인
             if (!isLoggedIn()) {
                 alert('로그인이 필요합니다.');
-                window.location.href = '/login.html';
+                window.location.href = 'https://6wol.github.io/open-market/index.html';
                 return;
             }
             
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 로그인 확인
             if (!isLoggedIn()) {
                 alert('로그인이 필요합니다.');
-                window.location.href = '/login.html';
+                window.location.href = 'index.html';
                 return;
             }
             
@@ -284,7 +284,7 @@ function logout() {
     
     alert('로그아웃 되었습니다.');
     
-    window.location.href = '/login.html';
+    window.location.href = 'index.html';
 }
 
 // 인증 데이터 클리어 함수
@@ -324,7 +324,7 @@ function updateUserInterface() {
             // 로그인 페이지로 이동하는 이벤트로 변경
             userLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                window.location.href = '/login.html';
+                window.location.href = 'index.html';
             });
         }
         
