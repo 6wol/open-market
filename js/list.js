@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 로그인 확인
             if (!isLoggedIn()) {
                 alert('로그인이 필요합니다.');
-                window.location.href = 'https://6wol.github.io/open-market/index.html';
+                window.location.href = 'index.html';
                 return;
             }
             
